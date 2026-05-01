@@ -15,6 +15,7 @@ jobs:
           - sacramento-311-map-app
           - sacramento-311-maplibre-app
           - sacramento-311-leaflet-app
+          - sacramento-homeless-response-dashboard
     defaults:
       run:
         working-directory: ${{ matrix.app }}

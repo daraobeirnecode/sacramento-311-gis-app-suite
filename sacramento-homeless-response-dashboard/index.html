@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sacramento Homeless Response Dashboard</title>
+  </head>
+  <body>
+    <div id="appShell">
+      <aside id="panel" aria-label="Homeless response controls and insights">
+        <header class="hero">
+          <p class="eyebrow">Sacramento 311 · Homeless response intelligence</p>
+          <h1>Encampment Triage Dashboard</h1>
+          <p>Prioritise open 311 reports, find repeat hotspots, and brief outreach/cleanup teams from live public service-request data.</p>
+          <div class="hero-actions">
+            <span id="windowBadge">Open active · Last 30 days</span>
+            <button id="refreshButton" type="button">Refresh live data</button>
+          </div>
+        </header>
+
+        <section class="controls card" aria-label="Filters">
+          <label>Time window
+            <select id="daysSelect">
+              <option value="7">Last 7 days</option>
+              <option value="30" selected>Last 30 days</option>
+              <option value="90">Last 90 days</option>
+              <option value="365">Last 12 months</option>
+            </select>
+          </label>
+          <label>Status
+            <select id="statusSelect">
+              <option value="OPEN" selected>Open / active</option>
+              <option value="NEW">New only</option>
+              <option value="IN PROGRESS">In progress only</option>
+              <option value="ALL">All statuses</option>
+              <option value="CLOSED">Closed</option>
+            </select>
+          </label>
+          <label>Operational lens
+            <select id="lensSelect">
+              <option value="all" selected>All homeless-related reports</option>
+              <option value="sidewalk">Sidewalk / access blocked</option>
+              <option value="critical">Critical infrastructure / focus area</option>
+              <option value="trash">Camp trash / cleanup</option>
+              <option value="vehicle">Occupied vehicle</option>
+              <option value="park">Park or bike trail</option>
+              <option value="private">Private property</option>
+            </select>
+          </label>
+        </section>
+
+        <section class="kpis" aria-label="Key indicators">
+          <article class="metric critical"><span>Open reports</span><strong id="totalCount">—</strong><em id="totalSub">filtered workload</em></article>
+          <article class="metric"><span>New</span><strong id="newCount">—</strong><em>needs first review</em></article>
+          <article class="metric"><span>In progress</span><strong id="progressCount">—</strong><em>active response</em></article>
+          <article class="metric"><span>Aged 7+ days</span><strong id="agedCount">—</strong><em>follow-up risk</em></article>
+        </section>
+
+        <section class="card insight-card">
+          <div class="section-title"><h2>Manager brief</h2><span id="briefStamp">live</span></div>
+          <div id="managerBrief" class="brief">Loading current homeless-response picture…</div>
+        </section>
+
+        <section class="card">
+          <div class="section-title"><h2>Top repeat hotspots</h2><span>click to zoom</span></div>
+          <div id="hotspotList" class="list"></div>
+        </section>
+
+        <section class="card">
+          <div class="section-title"><h2>District workload</h2><span>filtered</span></div>
+          <div id="districtList" class="list compact"></div>
+        </section>
+
+        <section class="card queue-card">
+          <div class="section-title"><h2>Priority action queue</h2><span>highest score first</span></div>
+          <div id="priorityList" class="list"></div>
+        </section>
+      </aside>
+
+      <main id="mapArea">
+        <div id="map"></div>
+        <div class="map-legend" aria-label="Map legend">
+          <strong>Priority score</strong>
+          <span><i class="dot high"></i> High</span>
+          <span><i class="dot medium"></i> Medium</span>
+          <span><i class="dot low"></i> Lower</span>
+          <span><i class="dot cluster"></i> Cluster</span>
+        </div>
+        <div id="mapStatus">Starting dashboard…</div>
+      </main>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

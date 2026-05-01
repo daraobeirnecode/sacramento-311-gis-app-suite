@@ -9,6 +9,7 @@ A small portfolio suite comparing different GIS client stacks against the same p
 | ArcGIS Maps SDK | `sacramento-311-map-app` | Vite + ArcGIS Maps SDK for JavaScript |
 | MapLibre | `sacramento-311-maplibre-app` | Vite + MapLibre GL JS + OpenFreeMap/OpenStreetMap/OpenMapTiles |
 | Leaflet | `sacramento-311-leaflet-app` | Vite + Leaflet + Leaflet.markercluster + OpenStreetMap |
+| Homeless Response Dashboard | `sacramento-homeless-response-dashboard` | Vite + MapLibre GL JS + public Sacramento 311 ArcGIS REST |
 
 ## Data source
 
