@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sacramento 311 Open Source Map</title>
+  </head>
+  <body>
+    <div id="appShell">
+      <aside id="sidebar">
+        <header class="hero">
+          <p class="eyebrow">Open-source GIS stack · MapLibre GL JS</p>
+          <h1>Sacramento 311 Explorer</h1>
+          <p>Live public 311 requests rendered with MapLibre, clustered GeoJSON, and open vector basemaps.</p>
+        </header>
+
+        <section class="panel controls">
+          <label for="daysSelect">Time window</label>
+          <select id="daysSelect">
+            <option value="7">Last 7 days</option>
+            <option value="30" selected>Last 30 days</option>
+            <option value="90">Last 90 days</option>
+          </select>
+
+          <label for="categorySelect">Category</label>
+          <select id="categorySelect">
+            <option value="">All categories</option>
+            <option value="Solid Waste">Solid Waste</option>
+            <option value="Homeless Camp - Primary">Homeless Camp - Primary</option>
+            <option value="Other">Other</option>
+            <option value="Review">Review</option>
+            <option value="Animal Control">Animal Control</option>
+            <option value="Code Enforcement">Code Enforcement</option>
+          </select>
+
+          <label for="statusSelect">Status</label>
+          <select id="statusSelect">
+            <option value="">All statuses</option>
+            <option value="OPEN">Open / active</option>
+            <option value="CLOSED">Closed</option>
+          </select>
+
+          <button id="refreshButton" type="button">Refresh map</button>
+        </section>
+
+        <section class="stats-grid">
+          <div class="stat-card"><span>Total</span><strong id="totalCount">—</strong></div>
+          <div class="stat-card"><span>Open</span><strong id="openCount">—</strong></div>
+          <div class="stat-card"><span>Closed</span><strong id="closedCount">—</strong></div>
+        </section>
+
+        <section class="panel">
+          <div class="section-title"><h2>Top categories</h2><span id="windowLabel">30 days</span></div>
+          <div id="categoryBars" class="bar-list"></div>
+        </section>
+
+        <section class="panel">
+          <div class="section-title"><h2>Latest requests</h2><span id="featureLimitLabel">latest 250 mapped</span></div>
+          <div id="latestList" class="latest-list"></div>
+        </section>
+      </aside>
+
+      <main id="mapArea">
+        <div id="map"></div>
+        <div id="mapStatus">Loading open-source map…</div>
+      </main>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

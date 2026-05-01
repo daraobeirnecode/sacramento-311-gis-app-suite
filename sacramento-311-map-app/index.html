@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sacramento 311 Service Request Map</title>
+    <link rel="stylesheet" href="https://js.arcgis.com/4.34/esri/themes/light/main.css" />
+    <link rel="stylesheet" href="./src/style.css" />
+    <script src="https://js.arcgis.com/4.34/"></script>
+  </head>
+  <body>
+    <div id="appShell">
+      <aside id="sidebar">
+        <header class="hero">
+          <p class="eyebrow">ArcGIS Maps SDK + public FeatureServer</p>
+          <h1>Sacramento 311 Map</h1>
+          <p>Explore recent 311 service requests by category, status, district, and extent.</p>
+        </header>
+
+        <section class="controls panel">
+          <label for="daysSelect">Time window</label>
+          <select id="daysSelect">
+            <option value="7">Last 7 days</option>
+            <option value="30" selected>Last 30 days</option>
+            <option value="90">Last 90 days</option>
+          </select>
+
+          <label for="categorySelect">Category</label>
+          <select id="categorySelect">
+            <option value="">All categories</option>
+            <option value="Solid Waste">Solid Waste</option>
+            <option value="Homeless Camp - Primary">Homeless Camp - Primary</option>
+            <option value="Other">Other</option>
+            <option value="Streets">Streets</option>
+            <option value="Code Enforcement">Code Enforcement</option>
+            <option value="Animal Care">Animal Care</option>
+          </select>
+
+          <label for="statusSelect">Status</label>
+          <select id="statusSelect">
+            <option value="">All statuses</option>
+            <option value="OPEN">Open / active</option>
+            <option value="CLOSED">Closed</option>
+          </select>
+
+          <button id="refreshButton" type="button">Apply filters</button>
+        </section>
+
+        <section class="stats-grid">
+          <div class="stat-card"><span>Total</span><strong id="totalCount">—</strong></div>
+          <div class="stat-card"><span>Open</span><strong id="openCount">—</strong></div>
+          <div class="stat-card"><span>Closed</span><strong id="closedCount">—</strong></div>
+        </section>
+
+        <section class="panel">
+          <div class="section-title">
+            <h2>Top categories</h2>
+            <span id="windowLabel">30 days</span>
+          </div>
+          <div id="categoryBars" class="bar-list"></div>
+        </section>
+
+        <section class="panel">
+          <div class="section-title">
+            <h2>Latest visible requests</h2>
+          </div>
+          <div id="latestList" class="latest-list"></div>
+        </section>
+      </aside>
+
+      <main id="mapArea">
+        <div id="viewDiv"></div>
+        <div id="mapStatus">Loading map…</div>
+      </main>
+    </div>
+
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>

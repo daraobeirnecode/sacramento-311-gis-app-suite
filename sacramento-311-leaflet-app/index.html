@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Sacramento 311 Explorer built with Leaflet, Vite, and public ArcGIS REST data." />
+    <title>Sacramento 311 Leaflet Map</title>
+  </head>
+  <body>
+    <div id="app">
+      <aside class="panel" aria-label="Sacramento 311 controls and summary">
+        <header class="hero">
+          <p class="eyebrow">OPEN-SOURCE GIS STACK · LEAFLET</p>
+          <h1>Sacramento 311 Explorer</h1>
+          <p class="lede">Live public 311 requests rendered with Leaflet markers and clustering.</p>
+        </header>
+
+        <section class="controls" aria-label="Filters">
+          <label>
+            Time window
+            <select id="time-window">
+              <option value="7">Last 7 days</option>
+              <option value="30" selected>Last 30 days</option>
+              <option value="90">Last 90 days</option>
+              <option value="365">Last 12 months</option>
+            </select>
+          </label>
+          <label>
+            Status
+            <select id="status-filter">
+              <option value="all" selected>All statuses</option>
+              <option value="open">Open / active</option>
+              <option value="closed">Closed</option>
+            </select>
+          </label>
+          <label>
+            Category
+            <select id="category-filter">
+              <option value="all" selected>All categories</option>
+            </select>
+          </label>
+          <button id="refresh-button" type="button">Refresh data</button>
+        </section>
+
+        <section class="status-line" aria-live="polite">
+          <span id="loading-state">Loading public Sacramento 311 data…</span>
+        </section>
+
+        <section class="kpis" aria-label="Summary statistics">
+          <article>
+            <span>Total</span>
+            <strong id="total-count">—</strong>
+          </article>
+          <article>
+            <span>Open</span>
+            <strong id="open-count">—</strong>
+          </article>
+          <article>
+            <span>Closed</span>
+            <strong id="closed-count">—</strong>
+          </article>
+        </section>
+
+        <section class="category-card">
+          <div class="section-title">
+            <h2>Top categories</h2>
+            <span id="category-window-label">30 days</span>
+          </div>
+          <div id="category-list" class="category-list"></div>
+        </section>
+
+        <section class="request-card">
+          <div class="section-title">
+            <h2>Latest mapped requests</h2>
+            <span>latest 250</span>
+          </div>
+          <div id="request-list" class="request-list"></div>
+        </section>
+      </aside>
+
+      <main class="map-shell">
+        <div id="map" aria-label="Sacramento 311 Leaflet map"></div>
+        <div class="map-note">Basemap © OpenStreetMap contributors · client stack: Leaflet + markercluster</div>
+      </main>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
