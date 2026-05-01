@@ -5,6 +5,16 @@ import './style.css';
 const SERVICE_URL = 'https://services5.arcgis.com/54falWtcpty3V47Z/arcgis/rest/services/SalesForce311_View/FeatureServer/0';
 const SACRAMENTO_CENTER = [-121.4944, 38.5816];
 const FEATURE_LIMIT = 250;
+const CATEGORY_COLORS = {
+  'Solid Waste': '#0ea5e9',
+  'Homeless Camp - Primary': '#f97316',
+  'Other': '#64748b',
+  'Review': '#eab308',
+  'Animal Control': '#22c55e',
+  'Code Enforcement': '#ef4444',
+  'Streets': '#a855f7'
+};
+const CATEGORY_COLOR_MATCH = ['match', ['get', 'CategoryLevel1'], ...Object.entries(CATEGORY_COLORS).flat(), '#334155'];
 
 const elements = {
   daysSelect: document.getElementById('daysSelect'),
@@ -41,7 +51,7 @@ function formatArcGisTimestamp(date) {
 }
 
 function buildWhere() {
-  const days = Number(elements.daysSelect.value || 30);
+  const days = Number(elements.daysSelect.value || 7);
   const start = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
   const clauses = [`DateCreated >= ${formatArcGisTimestamp(start)}`];
 
@@ -225,10 +235,11 @@ map.on('load', async () => {
     source: 'requests',
     filter: ['has', 'point_count'],
     paint: {
-      'circle-color': ['step', ['get', 'point_count'], '#22d3ee', 50, '#f59e0b', 150, '#ef4444'],
-      'circle-radius': ['step', ['get', 'point_count'], 18, 50, 25, 150, 34],
-      'circle-stroke-color': '#fff',
-      'circle-stroke-width': 2
+      'circle-color': ['step', ['get', 'point_count'], '#38bdf8', 25, '#f97316', 100, '#dc2626'],
+      'circle-radius': ['step', ['get', 'point_count'], 18, 25, 25, 100, 34],
+      'circle-opacity': 0.9,
+      'circle-stroke-color': '#ffffff',
+      'circle-stroke-width': 2.5
     }
   });
 
@@ -246,7 +257,7 @@ map.on('load', async () => {
     type: 'circle',
     source: 'requests',
     filter: ['all', ['!', ['has', 'point_count']], ['!=', ['upcase', ['coalesce', ['get', 'PublicStatus'], '']], 'CLOSED']],
-    paint: { 'circle-color': '#f97316', 'circle-radius': 7, 'circle-stroke-color': '#fff', 'circle-stroke-width': 1 }
+    paint: { 'circle-color': CATEGORY_COLOR_MATCH, 'circle-radius': ['interpolate', ['linear'], ['zoom'], 10, 5.5, 15, 9], 'circle-opacity': 0.88, 'circle-stroke-color': '#ffffff', 'circle-stroke-width': 1.4 }
   });
 
   map.addLayer({
@@ -254,7 +265,7 @@ map.on('load', async () => {
     type: 'circle',
     source: 'requests',
     filter: ['all', ['!', ['has', 'point_count']], ['==', ['upcase', ['coalesce', ['get', 'PublicStatus'], '']], 'CLOSED']],
-    paint: { 'circle-color': '#22c55e', 'circle-radius': 5, 'circle-stroke-color': '#fff', 'circle-stroke-width': 1 }
+    paint: { 'circle-color': CATEGORY_COLOR_MATCH, 'circle-radius': ['interpolate', ['linear'], ['zoom'], 10, 4, 15, 6.5], 'circle-opacity': 0.38, 'circle-stroke-color': '#2563eb', 'circle-stroke-width': 1 }
   });
 
   map.on('click', 'clusters', async (event) => {

@@ -25,7 +25,7 @@ function formatArcGisTimestamp(date) {
 }
 
 function buildWhere() {
-  const days = Number(elements.daysSelect.value || 30);
+  const days = Number(elements.daysSelect.value || 7);
   const start = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
   const clauses = [`DateCreated >= ${formatArcGisTimestamp(start)}`];
 
@@ -102,17 +102,23 @@ require([
   'esri/renderers/UniqueValueRenderer',
   'esri/symbols/SimpleMarkerSymbol'
 ], function (Map, MapView, FeatureLayer, Search, LayerList, Expand, UniqueValueRenderer, SimpleMarkerSymbol) {
-  const openSymbol = new SimpleMarkerSymbol({
-    color: [249, 115, 22, 0.88],
-    outline: { color: [255, 255, 255, 0.8], width: 0.75 },
-    size: 7
-  });
+  const categoryPalette = {
+    'Solid Waste': [14, 165, 233, 0.86],
+    'Homeless Camp - Primary': [249, 115, 22, 0.88],
+    'Other': [100, 116, 139, 0.78],
+    'Streets': [168, 85, 247, 0.84],
+    'Code Enforcement': [239, 68, 68, 0.86],
+    'Animal Care': [34, 197, 94, 0.82],
+    'Review': [234, 179, 8, 0.86]
+  };
 
-  const closedSymbol = new SimpleMarkerSymbol({
-    color: [34, 197, 94, 0.7],
-    outline: { color: [255, 255, 255, 0.7], width: 0.5 },
-    size: 5
-  });
+  function categorySymbol(category, size = 8) {
+    return new SimpleMarkerSymbol({
+      color: categoryPalette[category] || [15, 23, 42, 0.68],
+      size,
+      outline: { color: [255, 255, 255, 0.95], width: 1.2 }
+    });
+  }
 
   const featureLayer = new FeatureLayer({
     url: SERVICE_URL,
@@ -135,12 +141,22 @@ require([
       ]
     },
     renderer: new UniqueValueRenderer({
-      field: 'PublicStatus',
-      defaultSymbol: openSymbol,
-      defaultLabel: 'Open / active',
-      uniqueValueInfos: [
-        { value: 'CLOSED', symbol: closedSymbol, label: 'Closed' }
-      ]
+      field: 'CategoryLevel1',
+      defaultSymbol: categorySymbol('Other', 7),
+      defaultLabel: 'Other / uncategorized',
+      uniqueValueInfos: Object.keys(categoryPalette).map((category) => ({
+        value: category,
+        symbol: categorySymbol(category, category === 'Code Enforcement' || category === 'Homeless Camp - Primary' ? 9 : 8),
+        label: category
+      })),
+      visualVariables: [{
+        type: 'opacity',
+        field: 'DateCreated',
+        stops: [
+          { value: Date.now() - 7 * 24 * 60 * 60 * 1000, opacity: 0.92 },
+          { value: Date.now() - 30 * 24 * 60 * 60 * 1000, opacity: 0.55 }
+        ]
+      }]
     }),
     featureReduction: {
       type: 'cluster',

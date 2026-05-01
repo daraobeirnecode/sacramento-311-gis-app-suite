@@ -10,6 +10,18 @@ const SERVICE_URL = 'https://services5.arcgis.com/54falWtcpty3V47Z/arcgis/rest/s
 const MAX_DISPLAY_FEATURES = 250;
 const DEFAULT_CENTER = [38.5816, -121.4944];
 const DEFAULT_ZOOM = 11;
+const CATEGORY_COLORS = {
+  'Solid Waste': '#0ea5e9',
+  'Homeless Camp': '#f97316',
+  'Homeless Camp - Primary': '#f97316',
+  'Other': '#64748b',
+  'Review': '#eab308',
+  'Animal Control': '#22c55e',
+  'Code Enforcement': '#ef4444',
+  'Streets': '#a855f7',
+  'Parking': '#14b8a6',
+  'Water': '#2563eb'
+};
 
 const FIELD_CANDIDATES = {
   category: ['CategoryName', 'CategoryLevel2', 'CategoryLevel1', 'RequestType', 'Type', 'Category', 'Subject', 'ServiceName'],
@@ -48,7 +60,16 @@ L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
 const clusterLayer = L.markerClusterGroup({
   chunkedLoading: true,
-  maxClusterRadius: 44,
+  maxClusterRadius: 46,
+  iconCreateFunction(cluster) {
+    const count = cluster.getChildCount();
+    const size = count >= 100 ? 'large' : count >= 25 ? 'medium' : 'small';
+    return L.divIcon({
+      html: `<div><span>${count.toLocaleString()}</span></div>`,
+      className: `marker-cluster marker-cluster-${size}`,
+      iconSize: L.point(size === 'large' ? 54 : size === 'medium' ? 46 : 38, size === 'large' ? 54 : size === 'medium' ? 46 : 38),
+    });
+  },
 });
 map.addLayer(clusterLayer);
 
@@ -108,7 +129,7 @@ function selectedCategoryWhereClause() {
 
 function dateWhereClause() {
   const dateField = fields.date || 'CreatedDate';
-  const days = Number(els.timeWindow.value || 30);
+  const days = Number(els.timeWindow.value || 7);
   const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
   return `${dateField} >= DATE '${since.toISOString().slice(0, 10)}'`;
 }
@@ -224,15 +245,22 @@ function popupHtml(feature) {
   `;
 }
 
+function categoryColor(feature) {
+  const category = String(attr(feature, 'category') || 'Other');
+  const key = Object.keys(CATEGORY_COLORS).find((candidate) => category.includes(candidate));
+  return CATEGORY_COLORS[key] || '#334155';
+}
+
 function markerForFeature(feature) {
   const [lng, lat] = feature.geometry.coordinates;
   const isClosed = String(attr(feature, 'status') || '').toUpperCase().includes('CLOSED');
+  const color = categoryColor(feature);
   const marker = L.circleMarker([lat, lng], {
-    radius: 7,
-    color: isClosed ? '#38bdf8' : '#f97316',
-    weight: 2,
-    fillColor: isClosed ? '#0ea5e9' : '#fb923c',
-    fillOpacity: 0.85,
+    radius: isClosed ? 5.5 : 7.5,
+    color: isClosed ? '#2563eb' : '#ffffff',
+    weight: isClosed ? 1.1 : 1.8,
+    fillColor: color,
+    fillOpacity: isClosed ? 0.42 : 0.9,
   });
   marker.bindPopup(popupHtml(feature), { maxWidth: 280 });
   return marker;
