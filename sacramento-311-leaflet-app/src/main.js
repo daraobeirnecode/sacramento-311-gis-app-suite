@@ -7,7 +7,7 @@ import bbox from '@turf/bbox';
 import './style.css';
 
 const SERVICE_URL = 'https://services5.arcgis.com/54falWtcpty3V47Z/arcgis/rest/services/SalesForce311_View/FeatureServer/0/query';
-const MAX_DISPLAY_FEATURES = 250;
+const PAGE_SIZE = 2000;
 const DEFAULT_CENTER = [38.5816, -121.4944];
 const DEFAULT_ZOOM = 11;
 const CATEGORY_COLORS = {
@@ -220,18 +220,31 @@ async function loadCounts() {
   els.totalCount.textContent = formatNumber(totalCount);
   els.closedCount.textContent = formatNumber(closedCount);
   els.openCount.textContent = formatNumber(Math.max(totalCount - closedCount, 0));
+  return totalCount;
 }
 
-async function loadFeatures() {
-  const data = await queryArcgis({
-    where: currentWhereClause(),
-    outFields: '*',
-    outSR: '4326',
-    returnGeometry: 'true',
-    resultRecordCount: String(MAX_DISPLAY_FEATURES),
-    orderByFields: `${fields.date || 'CreatedDate'} DESC`,
-  });
-  return arcgisFeaturesToGeoJson(data.features || []);
+async function loadFeatures(total = 0) {
+  const allFeatures = [];
+  let offset = 0;
+
+  while (offset < Math.max(total, 1)) {
+    els.loadingState.textContent = `Loading full 7-day map layer… ${formatNumber(allFeatures.length)} of ${formatNumber(total)} records`;
+    const data = await queryArcgis({
+      where: currentWhereClause(),
+      outFields: '*',
+      outSR: '4326',
+      returnGeometry: 'true',
+      resultOffset: String(offset),
+      resultRecordCount: String(PAGE_SIZE),
+      orderByFields: `${fields.date || 'CreatedDate'} DESC`,
+    });
+    const pageFeatures = data.features || [];
+    allFeatures.push(...pageFeatures);
+    if (pageFeatures.length < PAGE_SIZE) break;
+    offset += PAGE_SIZE;
+  }
+
+  return arcgisFeaturesToGeoJson(allFeatures);
 }
 
 function popupHtml(feature) {
@@ -332,10 +345,10 @@ async function refreshData() {
   try {
     els.refreshButton.disabled = true;
     els.loadingState.textContent = 'Querying public Sacramento 311 FeatureServer…';
-    await Promise.all([loadCounts(), loadCategories()]);
-    const geojson = await loadFeatures();
+    const [total] = await Promise.all([loadCounts(), loadCategories()]);
+    const geojson = await loadFeatures(total);
     renderFeatures(geojson);
-    els.loadingState.textContent = `Showing ${formatNumber(geojson.features.length)} mapped requests from the latest matching records.`;
+    els.loadingState.textContent = `Mapped all ${formatNumber(geojson.features.length)} geocoded requests returned for the selected ${els.timeWindow.value}-day window. Stats count ${formatNumber(total)} matching records.`;
   } catch (error) {
     console.error(error);
     els.loadingState.textContent = `Data load failed: ${error.message}`;

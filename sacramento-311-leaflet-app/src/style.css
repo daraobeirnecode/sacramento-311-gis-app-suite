@@ -315,3 +315,80 @@ select,
   .map-shell { min-height: 50vh; height: 50vh; }
   .map-note { left: 12px; right: 12px; bottom: 12px; border-radius: 16px; }
 }
+
+
+/* Executive polish pass: presentation-grade sidebar, glass panels, and full-window map frame. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 72% 12%, rgba(14, 165, 233, .22), transparent 26%),
+    radial-gradient(circle at 88% 82%, rgba(249, 115, 22, .18), transparent 28%);
+  z-index: 1;
+}
+#app, .panel, .map-wrap { position: relative; z-index: 2; }
+.panel {
+  background:
+    linear-gradient(160deg, rgba(8, 24, 38, .98) 0%, rgba(18, 52, 77, .94) 32%, rgba(226, 239, 250, .98) 32.2%, rgba(248, 250, 252, .98) 100%);
+}
+.hero { position: relative; }
+.hero::after {
+  content: "Live public operations dashboard";
+  display: inline-flex;
+  margin-top: 14px;
+  padding: 7px 10px;
+  border: 1px solid rgba(125, 211, 252, .32);
+  border-radius: 999px;
+  background: rgba(15, 23, 42, .28);
+  color: #cffafe;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  backdrop-filter: blur(10px);
+}
+.controls,
+.metric-card,
+.category-card,
+.request-card {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, .72);
+  background: linear-gradient(180deg, rgba(255,255,255,.98), rgba(248,250,252,.92));
+  box-shadow: 0 18px 44px rgba(15, 23, 42, .16), inset 0 1px 0 rgba(255,255,255,.85);
+}
+.controls::before,
+.metric-card::before,
+.category-card::before,
+.request-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 3px;
+  background: linear-gradient(90deg, #06b6d4, #f97316, #dc2626);
+  opacity: .88;
+}
+.metric-card strong { font-size: clamp(1.3rem, 3.4vw, 1.9rem); color: #07111f; }
+.category-row,
+.request-item { transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease; }
+.category-row:hover,
+.request-item:hover { transform: translateY(-2px); box-shadow: 0 14px 28px rgba(15, 23, 42, .12); }
+.map-wrap {
+  margin: clamp(10px, 1.4vw, 18px) clamp(10px, 1.4vw, 18px) clamp(10px, 1.4vw, 18px) 0;
+  border: 1px solid rgba(148, 163, 184, .42);
+  border-radius: 28px;
+  overflow: hidden;
+  box-shadow: 0 24px 70px rgba(15, 23, 42, .24);
+  background: #dbeafe;
+}
+#loading-state {
+  border: 1px solid rgba(255,255,255,.16);
+  background: linear-gradient(135deg, rgba(15,23,42,.94), rgba(30,41,59,.9));
+}
+@media (max-width: 900px) {
+  .panel { background: linear-gradient(180deg, #eef6ff, #f8fafc); }
+  .hero::after { background: rgba(14, 165, 233, .12); color: #0f172a; border-color: rgba(14, 165, 233, .24); }
+  .map-wrap { margin: 10px; border-radius: 24px; }
+}

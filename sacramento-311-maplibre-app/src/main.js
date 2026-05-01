@@ -4,7 +4,7 @@ import './style.css';
 
 const SERVICE_URL = 'https://services5.arcgis.com/54falWtcpty3V47Z/arcgis/rest/services/SalesForce311_View/FeatureServer/0';
 const SACRAMENTO_CENTER = [-121.4944, 38.5816];
-const FEATURE_LIMIT = 250;
+const PAGE_SIZE = 2000;
 const CATEGORY_COLORS = {
   'Solid Waste': '#0ea5e9',
   'Homeless Camp - Primary': '#f97316',
@@ -112,15 +112,28 @@ async function categoryStats(where) {
   }));
 }
 
-async function fetchFeatures(where) {
-  return arcgisQuery({
-    where,
-    outFields: 'OBJECTID,ReferenceNumber,CategoryLevel1,CategoryName,CouncilDistrictNumber,PublicStatus,Address,DateCreated',
-    orderByFields: 'DateCreated DESC',
-    resultRecordCount: FEATURE_LIMIT,
-    returnGeometry: true,
-    outSR: 4326
-  });
+async function fetchAllFeatures(where, total) {
+  const allFeatures = [];
+  let offset = 0;
+
+  while (offset < Math.max(total, 1)) {
+    setStatus(`Loading full 7-day map layer… ${allFeatures.length.toLocaleString()} of ${total.toLocaleString()} records`);
+    const page = await arcgisQuery({
+      where,
+      outFields: 'OBJECTID,ReferenceNumber,CategoryLevel1,CategoryName,CouncilDistrictNumber,PublicStatus,Address,DateCreated',
+      orderByFields: 'DateCreated DESC',
+      resultOffset: offset,
+      resultRecordCount: PAGE_SIZE,
+      returnGeometry: true,
+      outSR: 4326
+    });
+    const features = page.features || [];
+    allFeatures.push(...features);
+    if (features.length < PAGE_SIZE) break;
+    offset += PAGE_SIZE;
+  }
+
+  return { type: 'FeatureCollection', features: allFeatures };
 }
 
 function renderBars(rows) {
@@ -197,13 +210,14 @@ async function refreshApp() {
   elements.refreshButton.disabled = true;
   setStatus('Fetching live 311 data via ArcGIS REST as GeoJSON…');
   try {
-    const [total, open, closed, categories, geojson] = await Promise.all([
+    const [total, open, closed, categories] = await Promise.all([
       countWhere(where),
       countWhere(`${where} AND UPPER(PublicStatus) <> 'CLOSED'`),
       countWhere(`${where} AND UPPER(PublicStatus) = 'CLOSED'`),
-      categoryStats(where),
-      fetchFeatures(where)
+      categoryStats(where)
     ]);
+
+    const geojson = await fetchAllFeatures(where, total);
 
     elements.totalCount.textContent = total.toLocaleString();
     elements.openCount.textContent = open.toLocaleString();
@@ -211,7 +225,7 @@ async function refreshApp() {
     renderBars(categories);
     renderLatest(geojson.features || []);
     updateMapData(geojson);
-    setStatus(`Mapped latest ${Math.min(FEATURE_LIMIT, geojson.features.length).toLocaleString()} of ${total.toLocaleString()} matching requests. Stats use all matches.`);
+    setStatus(`Mapped all ${geojson.features.length.toLocaleString()} geocoded requests returned for the selected ${elements.daysSelect.value}-day window. Stats count ${total.toLocaleString()} matching records.`);
   } catch (error) {
     console.error(error);
     setStatus(`Could not load 311 data: ${error.message}`);
